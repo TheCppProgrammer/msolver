@@ -111,6 +111,11 @@ inline void apply(double *a, double *b, unsigned char& c)
             *a *= *b;
             break;
         case 4:
+            if(*b==0)
+            {
+                error("Divide by Zero error\n");
+                exit(1);
+            }
             *a /= *b;
             break;
         case 5:
