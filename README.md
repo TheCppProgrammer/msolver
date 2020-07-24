@@ -20,7 +20,7 @@ make sure that your terminal supports color
 
 if the color support is available, steps are same as in macOS.
 
-if the color support is not available, open main.cpp using your favourite text editor and remove 3rd adn 4th line. Rest of the steps are same as in macOS.
+if the color support is not available, open main.cpp using your favourite text editor and remove 3rd and 4th line. Rest of the steps are same as in macOS.
 
 ## Usage :
 Open the command prompt/terminal in the location where the executable is located and type :
