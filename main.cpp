@@ -19,59 +19,76 @@ unsigned char toUnchar(char c)
     switch (c)
     {
         case 'T':
-            return 12;
-            break;
-        case 'C':
             return 11;
             break;
-        case 'S':
+        case 'C':
             return 10;
             break;
-        case 'N':
+        case 'S':
             return 9;
             break;
-        case 'L':
+        case 'N':
             return 8;
             break;
-        case '!':
+        case 'L':
             return 7;
             break;
-        case '%':
+        case '!':
             return 6;
             break;
-        case '^':
+        case '%':
             return 5;
             break;
-        case '/':
+        case '^':
             return 4;
+            break;
+        case '/':
+            return 3;
             break;
         case 'x':
         case 'X':
         case '*':
-            return 3;
-            break;
-        case '+':
             return 2;
             break;
-        case '-':
+        case '+':
             return 1;
             break;
         case '(':
             return 0;
             break;
         default:
-            return 13;
+            return 12;
             break;
     }
 }
 
-inline bool isfunction(unsigned char c){
-    return c>6;
+inline bool isfunction(unsigned char c)
+{
+    return c>5;
+}
+
+const char* getFuncStr(unsigned char& c)
+{
+    switch(c)
+    {
+        case 7:
+            return "Log";
+        case 8:
+            return "Ln";
+        case 9:
+            return "Sin";
+        case 10:
+            return "Cos";
+        case 11:
+            return "Tan";
+        default:
+            return "The";
+    }
 }
 
 bool isvalid(std::string &s)
 {
-    if(s=="."||s=="-.")
+    if(s=="."||s=="-."||s=="-")
     {
         s = "";
         return false;
@@ -80,20 +97,26 @@ bool isvalid(std::string &s)
         return s!="";
 }
 
-inline void factorial(double *a){
-    if(*a>170){
+inline void factorial(double *a)
+{
+    if(*a>170)
+    {
         error("Factorial above 170 is not supported\n");
         exit(1);
-    }else if(*a<0){
+    }
+    else if(*a<0)
+    {
         warning("Factorial of negative Numbers not allowed, Ignoring\n");
         return;
     }
 
     int b = (int)*a;
     double _result = b;
-    for(int i = b-1;i>1;--i){
+    for(int i = b-1;i>1;--i)
+    {
         _result*=i;
     }
+
     *a = _result;
 }
 
@@ -102,15 +125,12 @@ inline void apply(double *a, double *b, unsigned char& c)
     switch (c)
     {
         case 1:
-            *a -= *b;
-            break;
-        case 2:
             *a += *b;
             break;
-        case 3:
+        case 2:
             *a *= *b;
             break;
-        case 4:
+        case 3:
             if(*b==0)
             {
                 error("Divide by Zero error\n");
@@ -118,41 +138,54 @@ inline void apply(double *a, double *b, unsigned char& c)
             }
             *a /= *b;
             break;
-        case 5:
+        case 4:
             *a = std::pow(*a,*b);
             break;
-        case 6:
+        case 5:
             *a = fmod(*a,*b);
             break;
     }
 }
 
-inline void applyfunc(double *a,unsigned char &c){
+inline void applyfunc(double *a,unsigned char &c)
+{
     switch(c){
-        case 7 :
+        case 6 :
             factorial(a);
             break;
-        case 8 :
+        case 7 :
             *a = log(*a);
             break;
-        case 9 :
+        case 8 :
             *a = log(*a)/log(e);
             break;
-        case 10 :
+        case 9 :
             *a = sin(*a);
             break;
-        case 11 :
+        case 10 :
             *a = cos(*a);
             break;
-        case 12 :
+        case 11 :
             *a = tan(*a);
             break;
     }
 }
 
-void addOperator(unsigned char o){
+std::string eae(unsigned char c,bool &&arg=false)   //eae - Empty Argument Error
+{
+    std::string err = "Empty Argument in " + std::string(getFuncStr(c))+" Function"+(arg?"":"\n");
+    return err;
+}
+
+void addOperator(unsigned char o,bool b){
     if(_operator.size())
-    while(_operator.size()&&_operator.top()>o){
+    while(_operator.size()&&_operator.top()>o)
+    {
+        if(b&&isfunction(_operator.top()))
+        {
+            error(eae(_operator.top()).c_str());
+            exit(1);
+        }
         output.push_back(_operator.top());
         _operator.pop();
     }
@@ -163,7 +196,7 @@ void addOperator(unsigned char o){
 void insertStr(std::string a)
 {
     bool point = false;
-    for(std::size_t i = 0;i<a.length();++i)
+    for(uint16_t i = 0;i<a.length();++i)
     {
         if(a[i]=='.')
         {
@@ -192,26 +225,30 @@ int main(int argc,char** argv)
         return -1;
     }
 
-    const std::size_t len = strlen(argv[1]);    //stores length of the expression
+    const uint16_t len = strlen(argv[1]);    //stores length of the expression
     bool d = true;    //boolean used to allow user to add +/- to constant at appropriate locations
     std::string b = "";    //string to store current constant
     char prev = ' ';    //stores previous valid character
+    bool funcBool = false;
+    uint16_t pBrach = 0;
     
     for(std::size_t i = 0;i<len;++i){
         char c = argv[1][i];
         switch (c)
         {
             case 48 ... 57:
-                prev = c;
             case '.':
                 //if the previous valid character is ) or !, add * before the number. For e.g : (5+4)2 is parsed as (5+4)*2
                 if(prev == ')'|| prev=='!')
                 {
-                    addOperator(toUnchar('*'));
+                    addOperator(toUnchar('*'),funcBool);
                 }
                 
                 b+=c;
                 
+                if(c!='.')
+                    prev=c;
+
                 if(d)
                     d = false;
                 break;
@@ -231,22 +268,32 @@ int main(int argc,char** argv)
             case '*':
             case '/':
             case '^':
+            case '%':
             case '!':
                 if(d){
-                    warning("Operator without any constant before it",i,argv[1]);
+                    warning("Operator without any constant before it, Ignoring",i,argv[1]);
                     break;
                 }
 
-                if(toUnchar(prev)!=13){
-                    warning("Multiple Operators Without any constant in between",i,argv[1]);
+                if(toUnchar(prev)!=12&&prev!='!'){
+                    warning("Multiple Operators Without any constant in between, Ignoring",i,argv[1]);
                     break;
                 }
 
                 if(isvalid(b)){
+                    if(funcBool)
+                        funcBool = false;
                     insertStr(b);
                     b = "";
                 }
-                addOperator(toUnchar(c));
+
+                if(c == '-')
+                {
+                    addOperator(toUnchar('+'),funcBool);
+                    insertStr("-1");
+                    addOperator(toUnchar('*'),funcBool);
+                }else
+                    addOperator(toUnchar(c),funcBool);
                 prev = c;
                 break;
 
@@ -255,48 +302,97 @@ int main(int argc,char** argv)
                 d = true;
                 if(isvalid(b))
                 {
+                    if(funcBool)
+                        funcBool = false;
                     insertStr(b);
                     b = "";
-                    addOperator(toUnchar('*'));
+                    addOperator(toUnchar('*'),funcBool);
                 }else if(prev==')'||prev=='!')
-                    addOperator(toUnchar('*'));
+                    addOperator(toUnchar('*'),funcBool);
                 
                 _operator.push(0);
                 prev = c;
+                ++pBrach;
                 break;
 
             case ')':
+                if(pBrach == 0)
+                {
+                    warning("\')\' without corresponding \'(\', Ignoring",i,argv[1]);
+                    break;
+                }
+
+                --pBrach;
+
                 if(d)
                     d = false;
 
-                if(isvalid(b)){
+                if(isvalid(b))
+                {
+                    if(funcBool)
+                        funcBool = false;
                     insertStr(b);
                     b = "";
+                }
+                else if(prev=='(')
+                {
+                    _operator.pop();
+                    if(_operator.size())
+                    {
+                        if(funcBool&&_operator.top()>6)
+                        {
+                            error(eae(_operator.top(),true).c_str(),i,argv[1]);
+                            return -1;
+                        }
+                        else
+                        {
+                            _operator.pop();
+                        }
+                    }
+                    if(!output.size())
+                        d=true;
+                    prev=' ';
+                    break;
                 }
 
                 if(_operator.size())
                 {
+                    if((prev<'0'||prev>'9')&&prev!=')'&&!isfunction(prev)&&prev!='(')
+                    {
+                        warning("Expression Ends with an Operator, Ignoring",i,argv[1]);
+                        if(prev=='-')
+                        {
+                            _operator.pop();
+                            if(_operator.size()){
+                                _operator.pop();
+                            }
+
+                            if(output.size()){
+                                output.erase(output.begin()+(output.size()-1));
+                            }
+                        }else
+                            _operator.pop();
+                    }
+
                     while(_operator.size())
                     {
                         if(_operator.top()==0)
+                        {
+                            _operator.pop();
                             break;
+                        }
+
                         output.push_back(_operator.top());
                         _operator.pop();
+
                     }
 
                     if(_operator.size())
-                        _operator.pop();    //To Remove '(' character from the operator stack
-
-                    else{
-                        error("\')\' without a previous \'(\'",i,argv[1]);
-                        return -1;
-                    }
-                }
-                else
-                {
-                    warning("\')\' at inappropriate location, Ignoring",i,argv[1]);
-                    d = true;
-                    break;
+                        if(funcBool&&_operator.top()>6)
+                        {
+                            error(eae(_operator.top(),true).c_str(),i,argv[1]);
+                            return -1;
+                        }
                 }
                 
                 prev = c;
@@ -366,18 +462,23 @@ int main(int argc,char** argv)
                 }
                 
             functionHandling:
-                if(prev == ')'){
-                    addOperator(toUnchar('*'));
+                if(prev == ')')
+                {
+                    addOperator(toUnchar('*'),funcBool);
                     b = "";
                 }
 
-                if(isvalid(b)){
+                if(isvalid(b))
+                {
+                    if(funcBool)
+                        funcBool = false;
                     insertStr(b);
                     b = "";
-                    addOperator(toUnchar('*'));
+                    addOperator(toUnchar('*'),funcBool);
                 }
 
-                addOperator(toUnchar(c));
+                addOperator(toUnchar(c),funcBool);
+                funcBool = true;
                 break;
 
             default:
@@ -388,25 +489,51 @@ int main(int argc,char** argv)
     }
 
     if(isvalid(b))
-        insertStr(b);
-
-    if((prev<'0'||prev>'9')&&prev!=')'&&prev!='!')
     {
-        error("Expression Ends with an Operator");
+        if(funcBool)
+            funcBool = false;
+        insertStr(b);
+    }
+
+    if(funcBool)
+    {
+        if(_operator.size())
+        {
+            while(_operator.size())
+            {
+                if(_operator.top()>6)
+                {
+                    error(eae(_operator.top()).c_str());
+                    return -1;
+                }
+
+                _operator.pop();
+            }
+        }
+        else
+            error("Empty Argument in The Function\n");
         return -1;
+    }
+
+    if((prev<'0'||prev>'9')&&prev!=')'&&prev!='!'&&prev!=' ')
+    {
+        warning("Expression Ends with an Operator, Ignoring");
+        if(_operator.size())
+            _operator.pop();
     }
 
     while(_operator.size())
     {
-        if(_operator.top() == 0){
-            warning("\'(\' without a \')\', Ignoring");
+        if(_operator.top() == 0)
+        {
+            warning("\'(\' without corresponding \')\', Ignoring");
             _operator.pop();
             continue;
         }
         output.push_back(_operator.top());
         _operator.pop();
     }
-    
+
     for(int a = 0;a<output.size();++a)
     {
         if(!output[a].isVar())
@@ -415,8 +542,8 @@ int main(int argc,char** argv)
             {
                 if(a<1)
                 {
-                    error("Internal Error Occured, Error %d",__LINE__);
-                    return -1;
+                    output.erase(output.cbegin());
+                    continue;
                 }
                     
                 applyfunc(output[a-1].d,output[a].c);
@@ -427,8 +554,8 @@ int main(int argc,char** argv)
             {
                 if(a<2)
                 {
-                    error("Internal Error Occured, Error %d",__LINE__);
-                    return -1;
+                    output.erase(output.cbegin()+a);
+                    continue;
                 }
                 
                 apply(output[a-2].d,output[a-1].d,output[a].c);
@@ -442,12 +569,17 @@ int main(int argc,char** argv)
     {
         if(!output[0].isVar())
         {
-            error("Internal Error Occured, Error %d",__LINE__);
+            error("Syntax Error\n");
             return -1;
         }
         
         printf("\nResult    : %f\n",*(output[0].d));
         return 0;
+    }
+    else
+    {
+        error("Syntax Error\n");
+        return -1;
     }
 
     return -1;

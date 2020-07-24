@@ -31,8 +31,8 @@ void warning(const char* warning,int location = -1,char* string = nullptr)
     if(location!=-1)
     {
         printf("Parameter : ");
-        unsigned int size = strlen(string);
-        for(unsigned int i = 0;i<size;++i)
+        uint16_t size = strlen(string);
+        for(uint16_t i = 0;i<size;++i)
         {
             if(i == location)
             {                
@@ -52,8 +52,8 @@ void error(const char* error,int location = -1,char* string = nullptr)
     if(location!=-1)
     {
         printf("Parameter : ");
-        unsigned int size = strlen(string);
-        for(unsigned int i = 0;i<size;++i)
+        uint16_t size = strlen(string);
+        for(uint16_t i = 0;i<size;++i)
         {
             if(i == location)
             {
@@ -70,8 +70,9 @@ void error(const char* error,int location = -1,char* string = nullptr)
 void showHelp(char *c)
 {
     //HELPMENU
+    printf("MSolver v1.0\n\n");
     printf("Usage: %s expression\n",c);
-    printf("Supported Functions(To be Followed By Paranthesis):\n");
+    printf("Supported Functions(Must be Followed By Paranthesis):\n");
     printf("    Log() : Log Function\n");
     printf("    Ln()  : Natural Log Function\n");
     printf("    Sin() : Sin Function\n");
@@ -83,40 +84,49 @@ void showHelp(char *c)
     printf("      *   : Multiply Operator\n");
     printf("      /   : Division Operator\n");
     printf("      ^   : Exponentiation Operator\n");
-    printf("      !   : Factorial Operator\n\n");
+    printf("      !   : Factorial Operator\n");
+    printf("      %%   : Modular Operator\n\n");
 }
 
 struct data
 {
     double* d;
     unsigned char c;
+    data()
+    {
+        c = 12;
+    }
     data(unsigned char e = 0)
     {
         if(!e)
         {
             d = new double;
         }
+
         c = e;
     }
-    
-    bool isVar(){return c == 0;}
+
+    bool isVar()
+    {
+        return c == 0;
+    }
 };
 
-bool checkStr(const char* a, char *b, std::size_t location)
+bool checkStr(const char* a, char *b, uint16_t location)
 {
-    const std::size_t len = strlen(a);
-    const std::size_t blen = strlen(b);
+    const uint16_t len = strlen(a);
+    const uint16_t blen = strlen(b);
     
     if(blen-location < len)
         return false;
     
-    for(std::size_t i = 0;i<len;++i)
+    for(uint16_t i = 0;i<len;++i)
     {
         if(toupper(a[i])!=toupper(b[i+location]))
             return false;
     }
     
-    for(std::size_t i = location+len;i<blen;++i)
+    for(uint16_t i = location+len;i<blen;++i)
     {
         if(!isspace(b[i]))
         {
