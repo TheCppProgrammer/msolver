@@ -62,6 +62,15 @@ unsigned char toUnchar(char c)
     }
 }
 
+void clean()
+{
+    for(std::size_t i = 0;i<output.size();++i)
+    {
+        if(output[i].d)
+            delete output[i].d;
+    }
+}
+
 inline bool isfunction(unsigned char c)
 {
     return c>5;
@@ -102,6 +111,7 @@ inline void factorial(double *a)
     if(*a>170)
     {
         error("Factorial above 170 is not supported\n");
+        clean();
         exit(1);
     }
     else if(*a<0)
@@ -134,6 +144,7 @@ inline void apply(double *a, double *b, unsigned char& c)
             if(*b==0)
             {
                 error("Divide by Zero error\n");
+                clean();
                 exit(1);
             }
             *a /= *b;
@@ -184,6 +195,7 @@ void addOperator(unsigned char o,bool b){
         if(b&&isfunction(_operator.top()))
         {
             error(eae(_operator.top()).c_str());
+            clean();
             exit(1);
         }
         output.push_back(_operator.top());
@@ -342,6 +354,7 @@ int main(int argc,char** argv)
                         if(funcBool&&_operator.top()>6)
                         {
                             error(eae(_operator.top(),true).c_str(),i,argv[1]);
+                            clean();
                             return -1;
                         }
                         else
@@ -391,6 +404,7 @@ int main(int argc,char** argv)
                         if(funcBool&&_operator.top()>6)
                         {
                             error(eae(_operator.top(),true).c_str(),i,argv[1]);
+                            clean();
                             return -1;
                         }
                 }
@@ -504,6 +518,7 @@ int main(int argc,char** argv)
                 if(_operator.top()>6)
                 {
                     error(eae(_operator.top()).c_str());
+                    clean();
                     return -1;
                 }
 
@@ -512,6 +527,7 @@ int main(int argc,char** argv)
         }
         else
             error("Empty Argument in The Function\n");
+        clean();
         return -1;
     }
 
@@ -559,6 +575,8 @@ int main(int argc,char** argv)
                 }
                 
                 apply(output[a-2].d,output[a-1].d,output[a].c);
+                if(output[a-1].d)
+                    delete output[a-1].d;
                 output.erase(output.cbegin()+a-1,output.cbegin()+a+1);
                 a-=2;
             }
@@ -570,17 +588,18 @@ int main(int argc,char** argv)
         if(!output[0].isVar())
         {
             error("Syntax Error\n");
+            clean();
             return -1;
         }
         
         printf("\nResult    : %f\n",*(output[0].d));
+        clean();
         return 0;
     }
     else
     {
         error("Syntax Error\n");
+        clean();
         return -1;
     }
-
-    return -1;
 }
