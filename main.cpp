@@ -18,56 +18,36 @@ unsigned char toUnchar(char c)
 {
     switch (c)
     {
+        case '-':
+            return 13;    //'-' is a valid operator, 12 is assigned for invalid operators
         case 'T':
             return 11;
-            break;
         case 'C':
             return 10;
-            break;
         case 'S':
             return 9;
-            break;
         case 'N':
             return 8;
-            break;
         case 'L':
             return 7;
-            break;
         case '!':
             return 6;
-            break;
         case '%':
             return 5;
-            break;
         case '^':
             return 4;
-            break;
         case '/':
             return 3;
-            break;
         case 'x':
         case 'X':
         case '*':
             return 2;
-            break;
         case '+':
             return 1;
-            break;
         case '(':
             return 0;
-            break;
         default:
             return 12;
-            break;
-    }
-}
-
-void clean()
-{
-    for(std::size_t i = 0;i<output.size();++i)
-    {
-        if(output[i].d)
-            delete output[i].d;
     }
 }
 
@@ -106,78 +86,76 @@ bool isvalid(std::string &s)
         return s!="";
 }
 
-inline void factorial(double *a)
+inline void factorial(double &a)
 {
-    if(*a>170)
+    if(a>170)
     {
         error("Factorial above 170 is not supported\n");
-        clean();
         exit(1);
     }
-    else if(*a<0)
+    else if(a<0)
     {
         warning("Factorial of negative Numbers not allowed, Ignoring\n");
         return;
     }
 
-    int b = (int)*a;
+    int b = (int)a;
     double _result = b;
     for(int i = b-1;i>1;--i)
     {
         _result*=i;
     }
 
-    *a = _result;
+    a = _result;
 }
 
-inline void apply(double *a, double *b, unsigned char& c)
+inline void apply(double &a, double &b, unsigned char& c)
 {
     switch (c)
     {
         case 1:
-            *a += *b;
+            a += b;
             break;
         case 2:
-            *a *= *b;
+            a *= b;
             break;
         case 3:
-            if(*b==0)
+            if(b==0)
             {
                 error("Divide by Zero error\n");
-                clean();
                 exit(1);
             }
-            *a /= *b;
+            a /= b;
             break;
         case 4:
-            *a = std::pow(*a,*b);
+            a = std::pow(a,b);
             break;
         case 5:
-            *a = fmod(*a,*b);
+            a = fmod(a,b);
             break;
     }
 }
 
-inline void applyfunc(double *a,unsigned char &c)
+inline void applyfunc(double &a,unsigned char &c)
 {
     switch(c){
         case 6 :
             factorial(a);
             break;
         case 7 :
-            *a = log(*a);
+            a = log(a);
             break;
         case 8 :
-            *a = log(*a)/log(e);
+            a = log(a)/log(e);
             break;
         case 9 :
-            *a = sin(*a);
+            a = sin(a);
             break;
         case 10 :
-            *a = cos(*a);
+            a = cos(a);
             break;
         case 11 :
-            *a = tan(*a);
+            a = tan(a);
             break;
     }
 }
@@ -195,7 +173,6 @@ void addOperator(unsigned char o,bool b){
         if(b&&isfunction(_operator.top()))
         {
             error(eae(_operator.top()).c_str());
-            clean();
             exit(1);
         }
         output.push_back(_operator.top());
@@ -220,7 +197,7 @@ void insertStr(std::string a)
     }
     
     output.push_back(0);
-    *(output.back().d) = atof(a.c_str());
+    output.back().d = atof(a.c_str());
 }
 
 int main(int argc,char** argv)
@@ -354,7 +331,6 @@ int main(int argc,char** argv)
                         if(funcBool&&_operator.top()>6)
                         {
                             error(eae(_operator.top(),true).c_str(),i,argv[1]);
-                            clean();
                             return -1;
                         }
                         else
@@ -404,7 +380,6 @@ int main(int argc,char** argv)
                         if(funcBool&&_operator.top()>6)
                         {
                             error(eae(_operator.top(),true).c_str(),i,argv[1]);
-                            clean();
                             return -1;
                         }
                 }
@@ -518,7 +493,6 @@ int main(int argc,char** argv)
                 if(_operator.top()>6)
                 {
                     error(eae(_operator.top()).c_str());
-                    clean();
                     return -1;
                 }
 
@@ -527,7 +501,6 @@ int main(int argc,char** argv)
         }
         else
             error("Empty Argument in The Function\n");
-        clean();
         return -1;
     }
 
@@ -575,8 +548,6 @@ int main(int argc,char** argv)
                 }
                 
                 apply(output[a-2].d,output[a-1].d,output[a].c);
-                if(output[a-1].d)
-                    delete output[a-1].d;
                 output.erase(output.cbegin()+a-1,output.cbegin()+a+1);
                 a-=2;
             }
@@ -588,18 +559,15 @@ int main(int argc,char** argv)
         if(!output[0].isVar())
         {
             error("Syntax Error\n");
-            clean();
             return -1;
         }
         
-        printf("\nResult    : %f\n",*(output[0].d));
-        clean();
+        printf("\nResult    : %f\n",output[0].d);
         return 0;
     }
     else
     {
         error("Syntax Error\n");
-        clean();
         return -1;
     }
 }

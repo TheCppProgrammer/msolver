@@ -90,7 +90,7 @@ void showHelp(char *c)
 
 struct data
 {
-    double* d;
+    double d;
     unsigned char c;
     data()
     {
@@ -98,11 +98,6 @@ struct data
     }
     data(unsigned char e = 0)
     {
-        if(!e)
-        {
-            d = new double;
-        }
-
         c = e;
     }
 
