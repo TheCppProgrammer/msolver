@@ -3,6 +3,9 @@
 Mathematics expression parser and solver using shunting yard algorithm([Wikipedia](https://en.wikipedia.org/wiki/Shunting-yard_algorithm))
 
 ## Building :
+
+makefile is provided with the project. If make utility is available, it is recommended
+
 ### Windows or macOS :
 use any compiler to compile main.cpp
 
@@ -26,21 +29,27 @@ if the color support is not available, open main.cpp using your favourite text e
 Open the command prompt/terminal in the location where the executable is located and type :
 
 #### windows :
-    msolver.exe "expression"
+    msolver.exe --help
 
 #### macOS/Linux :
-    ./msolver "expression"
-
-*The expression must be replaced by the expression required in both the cases*
-
+    ./msolver --help
 
 ### Supported Functions :
 
-  * Log
-  * Ln
-  * Sin
-  * Cos
-  * Tan
+  * log
+  * ln
+  * sin
+  * cos
+  * tan
+  * asin
+  * acos
+  * atan
+  * round
+  * floor
+  * mod
+  * ceil(ceiling function)
+  * int(returns integer part of a float)
+  * fraction(returns fraction part of a float)
 
 **Functions must be followed by paranthesis '('**
 
@@ -52,4 +61,4 @@ Open the command prompt/terminal in the location where the executable is located
   * Division Operator(/)
   * Exponentiation Operator(^)
   * Factorial Operator(!)
-  * Modular Operator(%)
+  * Modulo Operator(%)
